@@ -22,7 +22,7 @@ jobs:
 
       - name: Copy project to the server
         run: |
-          scp -r . your-username@your-server-ip:/path/to/deployment/directory
+          scp -r . user01@213.233.184.231:/path/to/deployment/directory
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
 
