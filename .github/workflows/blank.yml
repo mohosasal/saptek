@@ -1,58 +1,23 @@
-# name: Deploy to Server
-
-# on:
-#   push:
-#     branches:
-#       - main  # Change this to the branch you want to deploy from
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
-
-#       - name: Set up SSH Deploy Key
-#         run: |
-#           mkdir -p ~/.ssh
-#           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa  # Ensure your private key is saved as a GitHub secret
-#           chmod 600 ~/.ssh/id_rsa
-#           ssh-keyscan -H github.com >> ~/.ssh/known_hosts  # Add GitHub to known hosts
-
-#       - name: Copy project to the server
-#         run: |
-#           scp -r . user01@213.233.184.231:/path/to/deployment/directory
-#         env:
-#           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-
-#       - name: Run Docker Compose on the server
-name: Ping Server
+name: Connect to Server Using Password
 
 on:
   push:
     branches:
-      - main  # Change this to the branch you want to trigger the workflow from
+      - main
 
 jobs:
-  ping:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set up SSH Deploy Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa  # Ensure your private key is saved as a GitHub secret
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H your-server-ip >> ~/.ssh/known_hosts  # Replace with your server's IP
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Ping the server
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+
+      - name: Connect to Server with Password
         run: |
-          ssh -i ~/.ssh/id_rsa user01@213.233.184.231 'echo "Server is up!"'
+          sshpass -p "!!GH#31YuxF" ssh -o StrictHostKeyChecking=no user01@213.233.184.231 "echo 'Server is up!'"
         env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-
-#         run: |
-#           ssh -i ~/.ssh/id_rsa your-username@your-server-ip 'cd /path/to/deployment/directory && docker-compose up -d'
-#         env:
-#           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          SERVER_PASSWORD: "!!GH#31YuxF"
