@@ -1,0 +1,33 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main  # Change this to the branch you want to deploy from
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH Deploy Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa  # Ensure your private key is saved as a GitHub secret
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts  # Add GitHub to known hosts
+
+      - name: Copy project to the server
+        run: |
+          scp -r . your-username@your-server-ip:/path/to/deployment/directory
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Run Docker Compose on the server
+        run: |
+          ssh -i ~/.ssh/id_rsa your-username@your-server-ip 'cd /path/to/deployment/directory && docker-compose up -d'
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
